@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scores</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"> -->
+
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+
+<body>
+    <header class="d-flex align-items-center p-2 bg-light">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for('user_dashboard', first_name = session['first_name'] ) }}">
+                <img src="{{ url_for('static', filename='logo3.png') }}" class="img-fluid pb-2" width="150px" alt="logo" />
+            </a>
+        </div>
+    
+        <div class="d-flex flex-grow-1 justify-content-between mx-3">
+    
+            <input type="text" id="scoreSearch" name="quizSearch" class="form-control mx-3" style="width: 300px;" placeholder="Search by Quiz Title..." onkeyup="searchScore()">
+            
+            <nav class="d-flex mx-3">
+                <a class="btn btn-success m-1"
+                            href="{{ url_for('user_dashboard',first_name = session['first_name']) }}"
+                            role="button">Home</a>
+                <a class="btn btn-success m-1" href="{{ url_for('user_summary',first_name = session['first_name']) }}" role="button">Summary</a>
+                <a class="btn btn-outline-danger m-1" href="{{ url_for('logout') }}" role="button">Logout</a>
+            </nav>
+    
+        </div>
+    
+        <div class="flex-shrink-0 text-end mx-3">
+            <div class="text-center text-primary">User</div>
+            <h3>Welcome {{session['first_name']}}</h3>
+        </div>
+    </header>
+    
+    <section class="container-fluid  pt-4 s2">
+        {% if scores_list %}
+        <div class="container py-4 px-0">
+            <h1 class="text-center">Marks Obtained</h1>
+            <div class="text-center">
+                <table class="table table-bordered text-center rounded-4 border-1 rounded-table">
+                    <thead>
+                        <tr>
+                            <th class="table-success" scope="col">#</th>
+                            <th class="table-success" scope="col">Quiz ID</th>
+                            <th class="table-success" scope="col">Title</th>
+                            <th class="table-success" scope="col">Subject</th>
+                            <th class="table-success" scope="col">No. of Questions</th>
+                            <th class="table-success" scope="col">Attempted Date</th>
+                            <th class="table-success" scope="col">Time Taken</th>
+                            <th class="table-success" scope="col">Marks Obtained</th>
+                            <th class="table-success" scope="col">Grade</th>
+                            <th class="table-success" scope="col">Attempt #</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!--score_data_dict = {'quiz_id':score.quiz_id,
+                           'attempted_date':score.date_of_attempt,
+                           'time_taken':time_taken,
+                           'markes_obtained':markes_obtained,
+                           'total_marks':total_marks,
+                           'subj_chapt_dict':subj_chap_dict,
+                           'quest_count':quiz.questions,
+                           'remarks':remark} -->
+
+                        <!-- scores_list = list of score_data_dict that is [score_data_dict_1,score_data_dict_2,...] -->
+                        {% for score_data_dict in scores_list %}
+                        <tr class="score-row">
+                            <th scope="row">{{ loop.index }}</th>
+                            <td>{{ score_data_dict['quiz_id'] }}</td>
+                            <td style="max-width: 400px;"><a href="{{ url_for('user_answer_transcript',first_name=session['first_name'],score_id=score_data_dict['score_id']) }}" class="text-success quiz-title">{{ score_data_dict['quiz_title'] }}</a></td>
+                            <td class="text-start">
+                                <ol class="fw-bold">
+                                    {% for key in score_data_dict['subj_chap_dict'].keys() %}
+                                        <li>
+                                            {{key}}
+                                            <ul style="font-weight: 400;">
+                                                {% for chapter in score_data_dict['subj_chap_dict'][key] %}
+                                                <li>{{ chapter }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            </td>
+                            <td>{{ score_data_dict['questions']|length }}</td>
+                            <td>{{ score_data_dict['attempted_date'] }}</td>
+                            <td>{{ score_data_dict['time_taken'] }}</td>
+                            <td>{{ score_data_dict['marks_obtained'] }}/{{score_data_dict['total_marks']}}</td>
+                            <td>{{ score_data_dict['remarks'] }}</td>
+                            <td>{{ score_data_dict['attempt_count'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <h2 class="text-center mt-5">You have not attempted any quiz Yet!!</h2>
+        {% endif %}
+    </section>
+    <script>
+        function searchScore() {
+            let input = document.getElementById("scoreSearch").value.toLowerCase();
+            let rows = document.querySelectorAll(".score-row");
+
+            rows.forEach(row => {
+                let title = row.querySelector(".quiz-title").innerText.toLowerCase();
+                if (title.includes(input)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

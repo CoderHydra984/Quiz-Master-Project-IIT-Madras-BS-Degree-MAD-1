@@ -1,0 +1,30 @@
+/* This css file is applied on admin.html */
+
+* {
+    font-family: "Inter", serif;
+
+}
+.search-box {
+    width: 300px;
+}
+
+
+body {
+    background-color: aliceblue !important;
+}
+
+
+.rounded-table {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.tj {
+    /* justifies the text in a div */
+    text-align: justify;
+}
+
+.required {
+    font-weight: bold;
+    color: red;
+}

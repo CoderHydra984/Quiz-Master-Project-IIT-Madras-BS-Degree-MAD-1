@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+
+    <div class=" border p-4 bg-light rounded-4">
+        <h3 class="text-center">Create a Quiz</h3>
+        <form action=" {{url_for('admin_create_quiz')}} " method="POST" class="form-group" style="min-width: 600px;">
+            <div class="form-group mt-3">
+                <label for="quiz_title-input" id="quiz_title" class="form-label fw-bold">
+                    Enter Quiz Title</b><span class="required"> *</span>
+                </label>
+                <input type="text" name="quiz_title" id="quiz_title-input" class="form-control" placeholder="Enter quiz title">
+                {% if qtitle_required %}
+                    <div class="container text-center">
+                        <small class="text-center text-danger fw-bold">Quiz Title is Required. Enter appropriate quiz title.</small>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-group mt-3">
+                <label for="chapter_id-input" id="chapter_id" class="form-label fw-bold">
+                    Chapter ID(s)</b><span class="required"> *</span>
+                </label>
+                <input type="text" name="chapter_id" id="chapter_id-input" class="form-control" placeholder="Enter chapter ID(s) (e.g., 1 or 1,2)">
+                {% if chapter_id_required %}
+                    <div class="container text-center">
+                        <small class="text-center text-danger fw-bold">Chapter ID is required.</small>
+                    </div>
+                {% endif %}
+                <small class="text-danger">Note: To add more than one chapter, enter the IDs separated by commas (e.g., 1,2,3).</small>
+            </div>
+            <div class="form-group mt-3">
+                <label for="duration-input" id="duration-label" class="form-label fw-bold">
+                    Time Duration</b><span class="required"> *</span>
+                </label>
+                <input type="text" name="duration" id="duration-input" class="form-control" placeholder="Enter duration of the quiz. (in HH:MM:SS format)">
+                {% if duration_required %}
+                    <div class="container text-center">
+                        <small class="text-center text-danger fw-bold">Time Duration of the quiz is required.</small>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-group mt-3">
+                <label for="deadline-input" id="deadline" class="form-label fw-bold">
+                    Deadline</b><span class="required"> *</span>
+                </label>
+                <input type="date" name="deadline" id="deadline-input" placeholder="Enter expected deadline(can be changed later)" class="form-control">
+                {% if deadline_required %}
+                    <div class="container text-center">
+                        <small class="text-center text-danger fw-bold">Deadline is Required.</small>
+                    </div>
+                {% endif %}
+                <small class="text-danger">Enter expected deadline(it can be changed before publishing).</small>
+            </div>
+            <div class="form-group mt-3">
+                <label for="remarks-input" id="remarks-label" class="form-label fw-bold">Remarks(if any)</label>
+                <textarea type="text" name="remarks" id="remarks-input" class="form-control" placeholder="Enter remarks if any"></textarea>
+            </div>
+            
+            <div class="container d-flex justify-content-evenly">
+                <a href=" {{ url_for('admin_quizzes') }} " class="btn btn-outline-success p-3 py-2 mt-3">Cancel</a>
+                <button type="submit" class="btn btn-success text-center p-3 py-2 mt-3" >Add</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

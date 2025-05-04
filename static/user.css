@@ -1,0 +1,25 @@
+/* This css file is applied on user.html, scores.html */
+
+* {
+    font-family: "Inter", serif;
+
+}
+.search-box {
+    width: 300px;
+}
+
+.s2, body {
+    background-color: aliceblue !important;
+}
+
+.table .btn-success {
+    width: 45%;
+}
+
+
+.rounded-table {
+    border-radius: 1rem; 
+    overflow: hidden;  
+}
+
+

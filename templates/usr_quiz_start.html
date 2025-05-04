@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Of Luck</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+    <script>
+        window.onload = function () {
+            let timeInput = document.getElementById("time_duration");
+            let time = timeInput ? timeInput.value : "01:00:00";
+
+            let parts = time.split(":");
+            let totalMinutes = parseInt(parts[0] || 0) * 60 + parseInt(parts[1] || 0) + Math.floor(parseInt(parts[2] || 0) / 60);
+            let totalTime = totalMinutes * 60;
+
+            let timerElement = document.getElementById("timer");
+            let form = document.getElementById("quizForm");
+
+            let storedTime = localStorage.getItem("quizTimeLeft");
+            if (storedTime !== null) {
+                totalTime = parseInt(storedTime, 10);
+            }
+
+            function updateTimer() {
+                let hours = Math.floor(totalTime / 3600);
+                let minutes = Math.floor((totalTime % 3600) / 60);
+                let seconds = totalTime % 60;
+
+                timerElement.innerText = `Time Left: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (totalTime === 0) {
+                    clearInterval(timerInterval);
+                    localStorage.removeItem("quizTimeLeft");
+                    form.submit();
+                } else {
+                    totalTime--;
+                    localStorage.setItem("quizTimeLeft", totalTime);
+                }
+            }
+
+            updateTimer();
+            let timerInterval = setInterval(updateTimer, 1000);
+
+            form.addEventListener("submit", function () {
+                localStorage.removeItem("quizTimeLeft");
+            });
+        };
+    </script>
+</head>
+
+<body>
+    <header class="d-flex align-items-center p-2 bg-light">
+        <div class="flex-shrink-0">
+            <a>
+                <img src="{{ url_for('static', filename='logo3.png') }}" class="img-fluid pb-2" width="150px"
+                    alt="logo" />
+            </a>
+        </div>
+
+        <div class="d-flex flex-grow-1 justify-content-between mx-3">
+
+            <nav class="d-flex mx-3">
+                <!-- <a class="btn btn-success m-1" href="{{ url_for('user_dashboard', first_name = first_name ) }}" role="button">Dashboard</a> -->
+                <!-- <a class="btn btn-success m-1" href="{{ url_for('user_scores', first_name = session['first_name']) }}" role="button">Scores</a> -->
+                <!-- <a class="btn btn-success m-1" href="#" role="button">Summary</a> -->
+                <!-- <a class="btn btn-outline-danger m-1" href="{{ url_for('logout') }}" role="button">Logout</a> -->
+            </nav>
+
+        </div>
+
+        <div class="flex-shrink-0 text-end mx-3">
+            <div class="text-center text-primary">User</div>
+            <h3>Welcome {{session['first_name']}}</h3>
+        </div>
+    </header>
+    <section class="container-fluid mt-5">
+        <input id="time_duration" type="hidden" value="{{quiz.time_duration}}">
+        <h2 class="text-center">Quiz Name</h2>
+        <p id="timer"
+            class="fw-bold text-danger fs-4 text-center border border-danger rounded py-2 px-3 shadow position-sticky top-0 bg-white">
+            Time Left: {{quiz.time_duration}}
+        </p> <!-- Timer display -->
+        <div class="container">
+            <h3>General Instructions</h3>
+            <ul>
+                <li>You must attempt every question in the quiz before submitting.</li>
+                <li>Some questions have only one correct answer, while others may have multiple correct answers, You
+                    have to figure it out yourself.</li>
+                <li>Certain questions have negative marking, which is displayed in the top-right corner of the question.
+                </li>
+                <li>When the timer runs out, your quiz will be automatically submitted, even if you haven't answered all
+                    questions.</li>
+                <li>f you try to go back or close the quiz page, your score will be set to zero (0).</li>
+                <li>If you finish before the time ends, you can submit the quiz manually.</li>
+            </ul>
+        </div>
+
+        <div class="container">
+            <form id="quizForm"
+                action="{{ url_for('user_submit_quiz', first_name=session['first_name'], quiz_id=quiz.id) }}"
+                method="POST">
+                {% set ns = namespace(question_index = 0) %}
+
+                <div class="container my-3 bg-light border rounded py-2">
+                    <!-- Hidden input to send user ID -->
+                    <input type="hidden" name="score_id" value="{{score_id}}">
+                    <input type="hidden" name="user_id" value="{{ session['user_id'] }}">
+
+                    {% for question in quiz.questions %}
+                    {% set ns.question_index = loop.index %}
+
+                    <p class="text-end mb-0">Positive Marks: <span class="text-success">+{{question.marks}}</span>
+                        Negative Marks: <span class="text-danger">{{question.negative_marks}}</span></p>
+
+                    <label class="form-check-label mb-2" for="{{ ns.question_index }}-question_statement">
+                        Q-{{ ns.question_index }}) {{question.question_statement}}
+                    </label><br>
+
+                    <input type="hidden" name="{{ ns.question_index }}-question_statement"
+                        id="{{ ns.question_index }}-question_statement" value="{{ question.id }}">
+
+                    <div class="container">
+                        {% for option in question.options %}
+                        <input class="form-check-input" name="{{ ns.question_index }}-option-{{ loop.index }}"
+                            id="quest-{{ ns.question_index }}-option-{{ loop.index }}-input" type="checkbox"
+                            value="{{ option.id }}">
+                        <label for="quest-{{ ns.question_index }}-option-{{ loop.index }}-input"
+                            id="quest-{{ ns.question_index }}-option-{{ loop.index }}-label" class="form-check-label">{{
+                            option.option }}</label><br>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+        </div>
+        <div class="container text-center">
+            <input type="submit" class="btn btn-success" value="Submit Quiz">
+        </div>
+        </form>
+        </div>
+    </section>
+
+</body>
+
+</html>

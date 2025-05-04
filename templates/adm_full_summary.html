@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+
+<body>
+    <header class="d-flex align-items-center p-2 bg-light">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for('admin_dashboard', first_name = session['first_name'] ) }}">
+                <img src="{{ url_for('static', filename='logo3.png') }}" class="img-fluid pb-2" width="150px"
+                    alt="logo" />
+            </a>
+        </div>
+
+        <div class="d-flex flex-grow-1 justify-content-end mx-3">
+
+            <nav class="d-flex mx-3">
+                <a class="btn btn-success m-1" href="{{ url_for('admin_quizzes') }}" role="button">Quizzes</a>
+                <a class="btn btn-success m-1" href="{{ url_for('admin_subjects') }}" role="button">Subjects</a>
+                <a class="btn btn-success m-1" href="{{url_for('admin_users_view')}}" role="button">Users</a>
+                <a class="btn btn-outline-danger m-1" href="{{ url_for('logout') }}" role="button">Logout</a>
+            </nav>
+
+        </div>
+
+        <div class="flex-shrink-0 text-end mx-3">
+            <div class="text-center text-primary">Admin</div>
+            <h3>Welcome {{session['first_name']}}</h3>
+        </div>
+    </header>
+    <section class="container-fluid ">
+        <div class="conrainer mt-5 ms-5">
+            <a href=" {{ url_for('admin_dashboard') }} " class="btn btn-success mx-3">Go to Dashboard</a>
+        </div>
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <h2 class="text-center mt-5">User Quiz Participation: Number of Attempts per Quiz</h2>
+                    <p class="ms-5 mt-3 mb-0">Total number of quiz published(past + current): {{quiz_count}}</p>
+                    <canvas id="user_quiz_attempt_count_graph" class="bg-light"></canvas>
+                </div>
+                <div class="col text-center mt-5">
+                    <form action="{{ url_for('admin_full_summary') }}" method="POST">
+                        <div class="form-group form-floating">
+                            <input type="number" id="quiz_id" name="quiz_id" value="{{ quiz.id }}" class="form-control"
+                                placeholder="Enter Quiz ID">
+                            <label for="quiz_id">Enter a Quiz ID to view user score graph.</label>
+                        </div>
+                        <button type="submit" class="btn btn-success my-2">Enter</button>
+                    </form>
+                    <h2 class="text-center my-5">Quiz-Wise Marks Obtained by Users </h2>
+                    <canvas id="users_quiz_performance" class="bg-light"></canvas>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const graphLabels = JSON.parse('{{ user_names | tojson | safe }}');
+            const graphData = JSON.parse('{{ quiz_attempt_counts | tojson | safe }}');
+            const quizCount = JSON.parse('{{ quiz_count | tojson | safe }}');
+            const ctx = document.getElementById('user_quiz_attempt_count_graph').getContext('2d');
+
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: graphLabels,
+                    datasets: [{
+                        label: 'Number of Quiz Attempts per User',
+                        data: graphData,
+                        backgroundColor: "rgba(75, 192, 192, 0.2)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "User Quiz Attempts Count",
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "User Names",
+                                font: { size: 14 }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Number of Quiz attempted",
+                                font: { size: 14 }
+                            },
+                            beginAtZero: true,
+                            suggestedMax: quizCount
+                        }
+                    }
+                }
+            })
+
+
+            const graphLabels2 = JSON.parse('{{ user_names_quiz | tojson | safe }}');
+            const graphData2 = JSON.parse('{{ highest_scores | tojson | safe }}');
+
+
+            const ctx2 = document.getElementById('users_quiz_performance').getContext('2d')
+
+            const myChart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: graphLabels2,
+                    datasets: [{
+                        label: 'Percent Marks Achieved in this Quiz',
+                        data: graphData2,
+                        backgroundColor: "rgba(75, 192, 192, 0.2)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Users Quiz Performance",
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "User Names",
+                                font: { size: 14 }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Percent Obtained",
+                                font: { size: 14 }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            })
+
+
+        </script>
+
+    </section>
+</body>
+
+</html>

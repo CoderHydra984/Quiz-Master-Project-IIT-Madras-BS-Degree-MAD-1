@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subjects</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+
+<body>
+    <header class="d-flex align-items-center p-2 bg-light">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for('admin_dashboard') }}">
+                <img src="{{ url_for('static', filename='logo3.png') }}" class="img-fluid pb-2" width="150px" alt="logo" />
+            </a>
+        </div>
+    
+        <div class="d-flex flex-grow-1 justify-content-between mx-3">
+    
+            <input type="text" id="subjectSearch" class="form-control mx-3" style="width: 300px;" placeholder="Search by Subject Name..." onkeyup="searchSubjects()">
+            
+            <nav class="d-flex mx-3">
+                <a class="btn btn-success m-1" href="{{ url_for('admin_quizzes') }}" role="button">Quizzes</a>
+                <a class="btn btn-success m-1" href="{{url_for('admin_users_view')}}"role="button">Users</a>
+                <a href="{{ url_for('admin_full_summary') }}" class="btn btn-success m-1">Summary</a>
+                <a class="btn btn-outline-danger m-1" href="{{ url_for('logout') }}" role="button">Logout</a>
+            </nav>
+    
+        </div>
+    
+        <div class="flex-shrink-0 text-end mx-3">
+            <div class="text-center text-primary">Admin</div>
+            <h3>Welcome {{session['first_name']}}</h3>
+        </div>
+    </header>
+
+    <section class="container-fluid mt-5">
+        <div class="row">
+            <div class="col d-flex justify-content-between">
+                <div class="container d-flex justify-content-start ms-5">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-success">Go to Dashboard</a>
+                </div>
+                {% if subjects_list %}
+                <div class="container d-flex justify-content-end me-5">
+                    <a href="{{ url_for('admin_create_subject') }}" class="btn btn-outline-primary">Add a Subject</a>
+                </div>
+                {% endif %}
+            </div>
+            
+        </div>
+        {% if subjects_list %}
+        <h2 class="text-center mt-3"> All Subjects </h2>
+        <table class="table table-bordered rounded-table align-middle text-center">
+            <thead>
+                <tr class="table-success">
+                    <th scope="col">#</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col" style="min-width: 50%;max-width: 50%;">Description</th>
+                    <th scope="col">No. of Chapters</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject,chap_count in subjects_list %}
+                <tr class="subject-row">
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ subject.id }} </td>
+                    <td class="text-start subject-name" style="max-width: 200px;"> <a href="{{url_for('admin_chapters_of_subject',subj_id=subject.id)}}" class="text-success">
+                        {{ subject.name }}</a>
+                    </td>
+                    <td class="tj" style="max-width: 400px; word-wrap: break-word; white-space: normal;">{{ subject.description }}</td>
+                    
+                    <td>{{ chap_count }}</td>
+                    <td style="max-width: 170px;">
+                        <a href="{{ url_for('admin_quizzes_on_subject',subj_id=subject.id) }}" class="action-button btn btn-success">Quizzes</a>
+                        <a class="btn btn-outline-warning" href="{{ url_for('admin_update_subject',subj_id = subject.id) }}">Edit</a>
+                        <a class="btn btn-outline-danger" href="{{ url_for('admin_delete_subject',subj_id = subject.id) }}">Delete</a>
+                    </td>
+                
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+        {% else %}
+        <div class="container text-center">
+            <h2>No Subjects Added Yet!! <a href="{{ url_for('admin_create_subject') }}" class="btn btn-outline-primary">Add One Now</a></h2>
+        </div>
+        {% endif %}
+    </section>
+    <script>
+        function searchSubjects() {
+            let input = document.getElementById("subjectSearch").value.toLowerCase();
+            let rows = document.querySelectorAll(".subject-row");
+
+            rows.forEach(row => {
+                let name = row.querySelector(".subject-name").innerText.toLowerCase();
+                if (name.includes(input)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

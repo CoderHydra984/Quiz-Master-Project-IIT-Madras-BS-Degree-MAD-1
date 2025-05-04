@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Summary</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+
+<body>
+    <header class="d-flex align-items-center p-2 bg-light">
+        <div class="flex-shrink-0">
+            <a href="{{ url_for('admin_dashboard') }}">
+                <img src="{{ url_for('static', filename='logo3.png') }}" class="img-fluid pb-2" width="150px"
+                    alt="logo" />
+            </a>
+        </div>
+
+        <div class="d-flex flex-grow-1 justify-content-end mx-3">
+
+            <nav class="d-flex mx-3">
+                <a class="btn btn-success m-1" href="{{ url_for('admin_quizzes') }}" role="button">Quizzes</a>
+                <a class="btn btn-success m-1" href="{{ url_for('admin_subjects') }}" role="button">Subjects</a>
+                <a href="{{ url_for('admin_full_summary') }}" class="btn btn-success m-1">Summary</a>
+                <a class="btn btn-outline-danger m-1" href="{{ url_for('logout') }}" role="button">Logout</a>
+            </nav>
+
+        </div>
+
+        <div class="flex-shrink-0 text-end mx-3">
+            <div class="text-center text-primary">Admin</div>
+            <h3>Welcome {{session['first_name']}}</h3>
+        </div>
+    </header>
+    <section class="container-fluid ">
+        <div class="conrainer mt-5 ms-5">
+            <a href="{{url_for('admin_users_view')}}" role="button" class="btn btn-success">Go Back</a>
+        </div>
+        <div class="container">
+            <div class="row row-cols-1">
+                <div class="col">
+                    <h2 class="text-center mt-5">Performance Analysis: Quiz Titles vs. Marks Obtained(in %)</h2>
+                    <canvas id="quiz_graphs" class="bg-light" style="max-width: 1600px; max-height: 1000px;"></canvas>
+                </div>
+                <div class="col text-center">
+                    <h3 class="text-center my-5">Question Attempt Analysis: Correct vs Incorrect vs Unattempted Questions (All Quiz Combined)</h3>
+                    <canvas id="accuracyChart" style="display: block; margin: auto; max-height: 600px; min-height: 600px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const quizLabels = JSON.parse('{{ labels | tojson | safe }}');
+            const quizData = JSON.parse('{{ data | tojson | safe }}');
+            const ctx = document.getElementById('quiz_graphs').getContext('2d');
+
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: quizLabels,
+                    datasets: [{
+                        label: 'Percentage Obtained',
+                        data: quizData,
+                        backgroundColor: "rgba(75, 192, 192, 0.2)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "User Quiz Scores",
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Quizzes",
+                                font: { size: 14 }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: "Scores in Percentage",
+                                font: { size: 14 }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            var ctx2 = document.getElementById('accuracyChart').getContext('2d');
+            var accuracyChart = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['Correct','Partial Correct', 'Incorrect', 'Unattempted'],
+                    datasets: [{
+                        data:JSON.parse('{{ cor_pc_incor_ua | tojson | safe }}'),
+                        backgroundColor: ['#28a745','#FFA500', '#dc3545', '#E9ECEF'],
+                        borderColor:'#000000',
+                        borderWidth:2
+                        }]
+                    },
+                options: {
+                    responsive: true
+                }
+            });
+        </script>
+    </section>
+</body>
+
+</html>

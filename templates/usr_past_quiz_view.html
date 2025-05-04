@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Quiz Details</title>
+    <!-- Linking Bootstrap Styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+    <!-- Google font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!-- Linking Self Styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='user.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo3.png') }}">
+</head>
+
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <section class="container-fluid bg-light  pt-4 s2">
+        <div class="container text-center">
+            <h1>Quiz Details</h1>
+            <div class="text-center d-flex justify-content-center">
+                <table class="table table-bordered border-1 text-center rounded-table rounded-4 align-middle" style="max-width: 1000px;">
+                    <tbody>
+                        <tr>
+                            <th class="table-success border-1 p-3">Quiz ID</th>
+                            <td>{{quiz_dict['quiz_id']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Title</th>
+                            <td>{{quiz_dict['quiz_title']}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="col" class="text-wrap text-start ps-4 table-success border-1 p-3" style="max-width: 400px;">
+                                Subject<br>&nbsp&nbsp&nbsp&nbsp&nbsp&#8226<span style="font-weight: 400;">Chapter</span> 
+                            </th>
+                            <td class="text-start p-3">
+                                <ol class="fw-bold">
+                                    {% for key in quiz_dict['subj_chap_dict'].keys() %}
+                                        <li>
+                                            {{key}}
+                                            <ul style="font-weight: 400;">
+                                                {% for chapter in quiz_dict['subj_chap_dict'][key] %}
+                                                <li>{{ chapter }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">No. of Questions</th>
+                            <td>{{quiz_dict['questions']|length}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Date Created</th>
+                            <td>{{quiz_dict['date_created']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Deadline</th>
+                            <td>{{quiz_dict['deadline']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Time Duration</th>
+                            <td>{{quiz_dict['dur']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Remarks</th>
+                            <td>{{quiz_dict['remarks']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Total Marks</th>
+                            <td class="fw-bold">{{quiz_dict['full_marks']}}</td>
+                        </tr>
+                        <tr>
+                            <th class="table-success border-1 p-3">Score</th>
+                            <td class="fw-bold">Not Attempted</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a href="{{url_for('user_dashboard',first_name=session['first_name'], state='past')}}" class="btn btn-success m-2 p-2">Close</a>
+        </div>
+    </section>
+</body>
+
+</html>

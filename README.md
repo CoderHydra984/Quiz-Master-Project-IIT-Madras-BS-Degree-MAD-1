@@ -64,6 +64,10 @@ bash local_setup.sh
 ```bash
 bash local_run.sh  
 ```  
+### 4⃣ Admin Login Data
+username - adminmail@gmail.com
+password - veryhardpassword 
+
 
 Now, visit `http://127.0.0.1:8080/` in your browser. 🎉
 
